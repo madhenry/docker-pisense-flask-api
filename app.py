@@ -2,6 +2,7 @@ from flask import Flask
 from sense_hat import SenseHat
 from flask import json
 import subprocess
+import re
 
 app = Flask(__name__)
 
@@ -35,7 +36,8 @@ def temp():
     try:
         sense = SenseHat()
         temp = sense.get_temperature()
-        cpu_temp = subprocess.check_output("vcgencmd measure_temp", shell=True)
+        cpu_temp = subprocess.check_output("vcgencmd measure_temp", shell=True, universal_newlines=True)
+        cpu_temp = float(re.findall("\d+\.\d+", cpu_temp)[0])
         temp_calibrated = temp - ((cpu_temp - temp)/5.466)
 
         response = app.response_class(
